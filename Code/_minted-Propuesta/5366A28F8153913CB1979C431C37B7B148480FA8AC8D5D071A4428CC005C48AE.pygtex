@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{for} \PYG{n}{n} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{Nt}\PYG{p}{):}
+    \PYG{n}{u\PYGZus{}old} \PYG{o}{=} \PYG{n}{u}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{()}
+    \PYG{n}{u} \PYG{o}{=} \PYG{n}{broyden}\PYG{p}{(}\PYG{n}{u}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(),} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{TOL}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+    \PYG{n}{U}\PYG{p}{[}\PYG{n}{n}\PYG{p}{,} \PYG{p}{:]} \PYG{o}{=} \PYG{n}{u}
+\end{Verbatim}

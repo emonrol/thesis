@@ -1,0 +1,61 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{c+c1}{\PYGZsh{} Parameters}
+\PYG{n}{L}\PYG{p}{,} \PYG{n}{Nx} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{50}
+\PYG{n}{T}\PYG{p}{,} \PYG{n}{dt} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mf}{0.01}
+\PYG{n}{nu} \PYG{o}{=} \PYG{l+m+mf}{0.01}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{L}\PYG{p}{,} \PYG{n}{Nx}\PYG{p}{)}
+\PYG{n}{dx} \PYG{o}{=} \PYG{n}{L} \PYG{o}{/} \PYG{p}{(}\PYG{n}{Nx} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{Nt} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{T} \PYG{o}{/} \PYG{n}{dt}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}
+\PYG{n}{TOL} \PYG{o}{=} \PYG{l+m+mf}{1e\PYGZhy{}15}
+\PYG{n}{MAX\PYGZus{}ITER} \PYG{o}{=} \PYG{l+m+mi}{30}
+
+\PYG{c+c1}{\PYGZsh{} Initial condition}
+\PYG{n}{u0} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{x}\PYG{p}{)}
+\PYG{n}{u0}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{n}{u0}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+\PYG{k}{def} \PYG{n+nf}{F}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{):}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros\PYGZus{}like}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{):}
+        \PYG{n}{derivx} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u\PYGZus{}old}\PYG{p}{[}\PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{u\PYGZus{}old}\PYG{p}{[}\PYG{n}{i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{dx}\PYG{p}{)}
+        \PYG{n}{derivxx} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+        \PYG{n}{f}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{u\PYGZus{}old}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{/} \PYG{n}{dt} \PYG{o}{+} \PYG{n}{u\PYGZus{}old}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{*} \PYG{n}{derivx} \PYG{o}{\PYGZhy{}} \PYG{n}{nu} \PYG{o}{*} \PYG{n}{derivxx}
+    \PYG{k}{return} \PYG{n}{f}
+
+\PYG{k}{def} \PYG{n+nf}{J}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{):}
+    \PYG{n}{N} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)}
+    \PYG{n}{J} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{))}
+    \PYG{n}{diag} \PYG{o}{=} \PYG{l+m+mi}{1} \PYG{o}{/} \PYG{n}{dt} \PYG{o}{+} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{nu} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+    \PYG{n}{sup} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{nu} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+    \PYG{n}{inf}\PYG{o}{=} \PYG{n}{sup}
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{):}
+        \PYG{k}{if} \PYG{n}{i} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{J}\PYG{p}{[}\PYG{n}{i}\PYG{p}{,} \PYG{n}{i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{sup}
+        \PYG{n}{J}\PYG{p}{[}\PYG{n}{i}\PYG{p}{,} \PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{diag}
+        \PYG{k}{if} \PYG{n}{i} \PYG{o}{\PYGZlt{}} \PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{3}\PYG{p}{:}
+            \PYG{n}{J}\PYG{p}{[}\PYG{n}{i}\PYG{p}{,} \PYG{n}{i} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{inf}
+    \PYG{k}{return} \PYG{n}{J}
+\PYG{k}{def} \PYG{n+nf}{broyden}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{TOL}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{):}
+    \PYG{n}{Fx} \PYG{o}{=} \PYG{n}{F}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+    \PYG{n}{Jx} \PYG{o}{=} \PYG{n}{J}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{)}
+    \PYG{n}{A} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{inv}\PYG{p}{(}\PYG{n}{Jx}\PYG{p}{)}
+    \PYG{n}{s} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+    \PYG{n}{u}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{s}
+    \PYG{n}{errors}\PYG{p}{,} \PYG{n}{residuals} \PYG{o}{=} \PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{s}\PYG{p}{)],} \PYG{p}{[}\PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{Fx}\PYG{p}{)]}
+
+    \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{N}\PYG{p}{):}
+        \PYG{n}{Fx\PYGZus{}new} \PYG{o}{=} \PYG{n}{F}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+        \PYG{n}{y} \PYG{o}{=} \PYG{n}{Fx\PYGZus{}new}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{z} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{y}
+        \PYG{n}{p} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{s} \PYG{o}{@} \PYG{n}{z}
+        \PYG{n}{uv} \PYG{o}{=} \PYG{n}{s} \PYG{o}{@} \PYG{n}{A}
+        \PYG{n}{A} \PYG{o}{+=} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{/} \PYG{n}{p}\PYG{p}{)} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{outer}\PYG{p}{(}\PYG{n}{s} \PYG{o}{+} \PYG{n}{z}\PYG{p}{,} \PYG{n}{uv}\PYG{p}{)}
+        \PYG{n}{s} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{Fx\PYGZus{}new}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{u}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{s}
+        \PYG{n}{errors}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{s}\PYG{p}{))}
+        \PYG{n}{residuals}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{Fx\PYGZus{}new}\PYG{p}{))}
+        \PYG{n}{Fx} \PYG{o}{=} \PYG{n}{Fx\PYGZus{}new}
+        \PYG{k}{if} \PYG{n}{errors}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZlt{}} \PYG{n}{TOL}\PYG{p}{:}
+            \PYG{k}{break}
+
+    \PYG{k}{return} \PYG{n}{u}\PYG{p}{,} \PYG{n}{errors}\PYG{p}{,} \PYG{n}{residuals}
+\end{Verbatim}

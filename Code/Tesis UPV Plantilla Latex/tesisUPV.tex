@@ -1,0 +1,162 @@
+% ---------------------------------------------------------------------
+%                      DOCUMENTO DE EJEMPLO
+%                    QUE UTILIZA LA PLANTILLA
+%                      DE LA EDITORIAL DE LA
+%                UNIVERSITAT POLITÈCNICA DE VALÈNCIA
+% ---------------------------------------------------------------------
+
+\documentclass[tesi, nocrop, sf, castellano,nomathskip]{editorialupv}
+%\usepackage[spanish]{babel}
+
+
+% Opciones de la clase 'editorialupv'
+%
+% llibre      - Libro docente
+% ebookpdf    - Libro en formato PDF para e-Readers
+% tesi        - Formato de tesis
+% a4          - Formato A4
+% rm          - Tipo de letra roman
+% sf          - Tipo de letra sanserif
+% crop        - Marcas de corte (cruz) 17x24 cm (+3 mm por los cuatro lados) centrada en una A4
+% nocrop      - Sin marcas de corte, respeta el tamaño 17x24 cm
+% nomathskip  - No se modifican las distancias de las ecuaciones
+%
+% castellano  - La publicación está escrita en castellano
+% valencia    - La publicació està escrita en valencià
+% english     - La publicación está escrita en inglés
+
+% ---------------------------------------------------------------------
+% Configuraciones presonalizadas
+
+\input{preambulo}
+
+
+% ---------------------------------------------------------------------
+% Las carpetas para los gráficos
+
+\graphicspath{
+	{../figuras/}
+	{../logos/}
+	{./figuras/}
+	{./logos/}
+	}
+
+% ---------------------------------------------------------------------
+
+\title{
+	Título de la Tesis\\[1ex]%[3ex]
+	\mdseries\large	Mes y año
+	}
+
+\author{
+	\parbox{\textwidth}{\centering%
+		\begin{tabular}{l@{\hspace{.75em}}l}
+			Autor: 		& Nombre del autor\\[1ex]%[4ex]
+			Directores:	& Director 1\\[.5ex]
+						& Director 2\\[3ex]
+		\end{tabular}
+        }
+	}
+
+
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\begin{document}
+
+\input{referencias_cruzadas}
+
+
+% -------------------------------------------------------
+
+\frontmatter
+
+% -------------------------------------------------------
+% Página de título
+
+\cleardoublepage
+\maketitle	
+
+
+% -------------------------------------------------------
+% Resumen, prólogo o prefacio
+%\cleardoublepage
+\null\newpage
+
+
+\input{0Directores}
+\newpage\null\newpage
+
+\input{0Agradecimientos}
+
+%\newpage\null\newpage
+
+\phantomsection
+\addcontentsline{toc}{chapter}{\abstractname}
+\input{0Resumen}
+\newpage
+
+% -------------------------------------------------------
+% Índice: tabla de contenidos
+\phantomsection
+\addcontentsline{toc}{chapter}{\contentsname}
+\tableofcontents
+
+%\addcontentsline{toc}{chapter}{Listado de acrónimos}
+%\chapter*{Listado de acrónimos}
+%\input{0Acronimos}
+
+%\cleardoublepage
+%\addcontentsline{toc}{chapter}{Lista de figuras} % para que aparezca en el indice de contenidos
+%\listoffigures % indice de figuras
+
+%\cleardoublepage
+%\addcontentsline{toc}{chapter}{Lista de tablas} % para que aparezca en el indice de contenidos
+%\listoftables % indice de tablas
+
+
+% -------------------------------------------------------
+% Numeración de páginas números arábicos
+% Primer capítulo en página 1
+
+\mainmatter
+
+% -------------------------------------------------------
+% -------------------------------------------------------
+% -------------------------------------------------------
+% Capítulos de la publicación
+
+
+\input{Cap1-Introduccion}
+
+\input{CapN-Conclusiones}
+%%
+\appendix
+%%%
+\input{A1Meritos}
+%%%
+
+
+% -------------------------------------------------------
+% -------------------------------------------------------
+% -------------------------------------------------------
+% Bibliografía
+
+\bibitemsep = 3ex
+\bibhang = 2emS
+%\printbibliography[heading=bibintoc,title=\bibname]
+\newpage\null\newpage
+
+\addcontentsline{toc}{chapter}{Bibliografía}
+\small
+\printbibliography
+
+% -------------------------------------------------------
+
+% -------------------------------------------------------
+% Fin del documento
+
+\end{document} 

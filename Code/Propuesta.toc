@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Viscous Burgers' equation}{2}{section.2}%
+\contentsline {section}{\numberline {3}PDE to Systems}{2}{section.3}%
+\contentsline {section}{\numberline {4}Python: Numerical Analysis}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Broyden's Method Implementation}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Comparison with Newton}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Main Loop}{6}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Solutions}{6}{subsection.4.4}%
+\contentsline {section}{References}{8}{section*.4}%

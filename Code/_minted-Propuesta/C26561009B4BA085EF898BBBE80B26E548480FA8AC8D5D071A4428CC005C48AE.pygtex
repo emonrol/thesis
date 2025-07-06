@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Parameters}
+\PYG{n}{L}\PYG{p}{,} \PYG{n}{Nx} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{100}
+\PYG{n}{T}\PYG{p}{,} \PYG{n}{dt} \PYG{o}{=} \PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{l+m+mf}{0.1}
+\PYG{n}{nu} \PYG{o}{=} \PYG{l+m+mf}{0.01}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{L}\PYG{p}{,} \PYG{n}{Nx}\PYG{p}{)}
+\PYG{n}{dx} \PYG{o}{=} \PYG{n}{L} \PYG{o}{/} \PYG{p}{(}\PYG{n}{Nx} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{Nt} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{T} \PYG{o}{/} \PYG{n}{dt}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{1}
+\PYG{n}{TOL} \PYG{o}{=} \PYG{l+m+mf}{1e\PYGZhy{}15}
+\PYG{n}{MAX\PYGZus{}ITER} \PYG{o}{=} \PYG{l+m+mi}{30}
+\end{Verbatim}

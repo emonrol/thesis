@@ -1,0 +1,153 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Problem Parameters}
+\PYG{n}{L} \PYG{o}{=} \PYG{l+m+mi}{1}            \PYG{c+c1}{\PYGZsh{} Domain length}
+\PYG{n}{Nx} \PYG{o}{=} \PYG{l+m+mi}{20}             \PYG{c+c1}{\PYGZsh{} Number of spatial points}
+\PYG{n}{T} \PYG{o}{=} \PYG{l+m+mi}{1}             \PYG{c+c1}{\PYGZsh{} Final simulation time}
+\PYG{n}{dt} \PYG{o}{=} \PYG{l+m+mf}{0.01}           \PYG{c+c1}{\PYGZsh{} Time step}
+\PYG{n}{nu} \PYG{o}{=}\PYG{l+m+mf}{0.01}           \PYG{c+c1}{\PYGZsh{} Viscosity}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{L}\PYG{p}{,} \PYG{n}{Nx}\PYG{p}{)}
+\PYG{n}{dx} \PYG{o}{=} \PYG{n}{L} \PYG{o}{/} \PYG{p}{(}\PYG{n}{Nx} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)}
+\PYG{n}{Nt} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{T} \PYG{o}{/} \PYG{n}{dt}\PYG{p}{)} \PYG{o}{+}\PYG{l+m+mi}{1}   \PYG{c+c1}{\PYGZsh{} Number of time steps}
+\PYG{n}{TOL}\PYG{o}{=} \PYG{l+m+mf}{1e\PYGZhy{}6}
+\PYG{n}{N}\PYG{o}{=} \PYG{l+m+mi}{200} \PYG{c+c1}{\PYGZsh{} Number of iterations for broyden}
+
+\PYG{c+c1}{\PYGZsh{} Initial condition: sin(pi * x), with Dirichlet boundary conditions}
+\PYG{n}{u} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{x}\PYG{p}{)}
+\PYG{n}{u}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{n}{u}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+\PYG{c+c1}{\PYGZsh{} Storage for solution over time}
+\PYG{n}{U} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{Nt}\PYG{p}{,} \PYG{n}{Nx}\PYG{p}{))}
+\PYG{n}{U}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{p}{:]} \PYG{o}{=} \PYG{n}{u}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{()}
+
+\PYG{k}{def} \PYG{n+nf}{F}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{):}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros\PYGZus{}like}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{):}
+        \PYG{n}{convection} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{dx}\PYG{p}{)}
+        \PYG{n}{diffusion} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{+} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+        \PYG{n}{f}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{u\PYGZus{}old}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])} \PYG{o}{/} \PYG{n}{dt} \PYG{o}{+} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{*} \PYG{n}{convection} \PYG{o}{\PYGZhy{}} \PYG{n}{nu} \PYG{o}{*} \PYG{n}{diffusion}
+    \PYG{k}{return} \PYG{n}{f}
+
+\PYG{k}{def} \PYG{n+nf}{J}\PYG{p}{(}\PYG{n}{u}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{):}
+    \PYG{n}{N} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{u}\PYG{p}{)}
+    \PYG{n}{J} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{,} \PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{p}{))}  \PYG{c+c1}{\PYGZsh{} Exclude boundaries}
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{):}
+        \PYG{n}{row} \PYG{o}{=} \PYG{n}{i} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}
+        \PYG{n}{u\PYGZus{}i}   \PYG{o}{=} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
+        \PYG{n}{u\PYGZus{}ip1} \PYG{o}{=} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{u\PYGZus{}im1} \PYG{o}{=} \PYG{n}{u}\PYG{p}{[}\PYG{n}{i}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+
+        \PYG{n}{dfi\PYGZus{}oi}   \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{o}{/}\PYG{n}{dt} \PYG{o}{+} \PYG{p}{(}\PYG{n}{u\PYGZus{}ip1} \PYG{o}{\PYGZhy{}} \PYG{n}{u\PYGZus{}im1}\PYG{p}{)} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{4} \PYG{o}{*} \PYG{n}{dx}\PYG{p}{)} \PYG{o}{+} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{nu} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+        \PYG{n}{dfi\PYGZus{}oi\PYGZus{}1} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{u\PYGZus{}i} \PYG{o}{/} \PYG{n}{dx} \PYG{o}{\PYGZhy{}} \PYG{n}{nu} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+        \PYG{n}{dfi\PYGZus{}oi1}  \PYG{o}{=}  \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{u\PYGZus{}i} \PYG{o}{/} \PYG{n}{dx} \PYG{o}{\PYGZhy{}} \PYG{n}{nu} \PYG{o}{/} \PYG{n}{dx}\PYG{o}{**}\PYG{l+m+mi}{2}
+
+        \PYG{k}{if} \PYG{n}{row} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{0}\PYG{p}{:}
+            \PYG{n}{J}\PYG{p}{[}\PYG{n}{row}\PYG{p}{,} \PYG{n}{row} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{dfi\PYGZus{}oi\PYGZus{}1}
+        \PYG{n}{J}\PYG{p}{[}\PYG{n}{row}\PYG{p}{,} \PYG{n}{row}\PYG{p}{]} \PYG{o}{=} \PYG{n}{dfi\PYGZus{}oi}
+        \PYG{k}{if} \PYG{n}{row} \PYG{o}{\PYGZlt{}} \PYG{n}{N} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{3}\PYG{p}{:}
+            \PYG{n}{J}\PYG{p}{[}\PYG{n}{row}\PYG{p}{,} \PYG{n}{row} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{dfi\PYGZus{}oi1}
+    \PYG{k}{return} \PYG{n}{J}
+
+\PYG{k}{def} \PYG{n+nf}{broyden}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{TOL}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{):}
+    \PYG{n}{Fx} \PYG{o}{=} \PYG{n}{F}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+    \PYG{n}{A} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{solve}\PYG{p}{(}\PYG{n}{J}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{),} \PYG{o}{\PYGZhy{}}\PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])} \PYG{c+c1}{\PYGZsh{} A is the inverse Jacobian approximation}
+
+    \PYG{c+c1}{\PYGZsh{} First step}
+    \PYG{n}{s} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+    \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+} \PYG{n}{s}
+    \PYG{n}{k} \PYG{o}{=} \PYG{l+m+mi}{2}
+
+    \PYG{k}{while} \PYG{n}{k} \PYG{o}{\PYGZlt{}=} \PYG{n}{N}\PYG{p}{:}
+        \PYG{n}{PrevFx} \PYG{o}{=} \PYG{n}{Fx}
+        \PYG{n}{Fx} \PYG{o}{=} \PYG{n}{F}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+        \PYG{n}{y} \PYG{o}{=} \PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{\PYGZhy{}} \PYG{n}{PrevFx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{z} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{y}
+        \PYG{n}{p} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{s} \PYG{o}{@} \PYG{n}{z}
+        \PYG{n}{u\PYGZus{}vec} \PYG{o}{=} \PYG{n}{s} \PYG{o}{@} \PYG{n}{A}
+        \PYG{n}{A} \PYG{o}{=} \PYG{n}{A} \PYG{o}{+} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{/} \PYG{n}{p}\PYG{p}{)} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{outer}\PYG{p}{(}\PYG{n}{s} \PYG{o}{+} \PYG{n}{z}\PYG{p}{,} \PYG{n}{u\PYGZus{}vec}\PYG{p}{)}
+        \PYG{n}{s} \PYG{o}{=} \PYG{o}{\PYGZhy{}}\PYG{n}{A} \PYG{o}{@} \PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}
+        \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+} \PYG{n}{s}
+        \PYG{k}{if} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{s}\PYG{p}{)} \PYG{o}{\PYGZlt{}} \PYG{n}{TOL}\PYG{p}{:}
+            \PYG{k}{break}
+        \PYG{n}{k} \PYG{o}{+=} \PYG{l+m+mi}{1}
+
+    \PYG{k}{if} \PYG{n}{k} \PYG{o}{\PYGZgt{}} \PYG{n}{N}\PYG{p}{:}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}MAXIMUM NUMBER OF ITERATIONS EXCEEDED\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{x}
+
+\PYG{k}{def} \PYG{n+nf}{convergence}\PYG{p}{(}\PYG{n}{e\PYGZus{}km1}\PYG{p}{,} \PYG{n}{e\PYGZus{}k}\PYG{p}{,} \PYG{n}{e\PYGZus{}kp1}\PYG{p}{):}
+    \PYG{k}{return} \PYG{n}{np}\PYG{o}{.}\PYG{n}{log}\PYG{p}{(}\PYG{n}{e\PYGZus{}kp1} \PYG{o}{/} \PYG{n}{e\PYGZus{}k}\PYG{p}{)} \PYG{o}{/} \PYG{n}{np}\PYG{o}{.}\PYG{n}{log}\PYG{p}{(}\PYG{n}{e\PYGZus{}k} \PYG{o}{/} \PYG{n}{e\PYGZus{}km1}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{newton}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{TOL}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{):}
+    \PYG{n}{k} \PYG{o}{=} \PYG{l+m+mi}{1}
+    \PYG{n}{errors} \PYG{o}{=} \PYG{p}{[]}
+    \PYG{n}{residuals} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{while} \PYG{n}{k} \PYG{o}{\PYGZlt{}=} \PYG{n}{N}\PYG{p}{:}
+        \PYG{n}{Fx} \PYG{o}{=} \PYG{n}{F}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+        \PYG{n}{Jx} \PYG{o}{=} \PYG{n}{J}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{)}
+        \PYG{n}{s} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{solve}\PYG{p}{(}\PYG{n}{Jx}\PYG{p}{,} \PYG{o}{\PYGZhy{}}\PYG{n}{Fx}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])}
+        \PYG{n}{x}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{+=} \PYG{n}{s}
+
+        \PYG{n}{step\PYGZus{}norm} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{s}\PYG{p}{)}
+        \PYG{n}{residual\PYGZus{}norm} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linalg}\PYG{o}{.}\PYG{n}{norm}\PYG{p}{(}\PYG{n}{Fx}\PYG{p}{)}
+        \PYG{n}{errors}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{step\PYGZus{}norm}\PYG{p}{)}
+        \PYG{n}{residuals}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{residual\PYGZus{}norm}\PYG{p}{)}
+
+        \PYG{k}{if} \PYG{n}{step\PYGZus{}norm} \PYG{o}{\PYGZlt{}} \PYG{n}{TOL}\PYG{p}{:}
+            \PYG{k}{break}
+        \PYG{n}{k} \PYG{o}{+=} \PYG{l+m+mi}{1}
+
+    \PYG{k}{if} \PYG{n}{k} \PYG{o}{\PYGZgt{}} \PYG{n}{N}\PYG{p}{:}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}MAXIMUM NUMBER OF ITERATIONS EXCEEDED\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Compute empirical order of convergence}
+    \PYG{n}{orders} \PYG{o}{=} \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{map}\PYG{p}{(}\PYG{n}{convergence}\PYG{p}{,} \PYG{n}{errors}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{2}\PYG{p}{],} \PYG{n}{errors}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{],} \PYG{n}{errors}\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{:]))}
+
+    \PYG{c+c1}{\PYGZsh{} Plot}
+    \PYG{k+kn}{import} \PYG{n+nn}{matplotlib.pyplot} \PYG{k}{as} \PYG{n+nn}{plt}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{semilogy}\PYG{p}{(}\PYG{n}{errors}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Step norm\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{semilogy}\PYG{p}{(}\PYG{n}{residuals}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}Residual norm\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Iteration\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Norm\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Newton Method Convergence\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Empirical orders of convergence:\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{n}{p} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{orders}\PYG{p}{,} \PYG{n}{start}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{):}
+        \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}  Iter }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{i}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{: p ≈ }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{p}\PYG{l+s+si}{:}\PYG{l+s+s2}{.3f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{x}
+
+\PYG{k}{def} \PYG{n+nf}{Fanimation}\PYG{p}{():}
+    \PYG{n}{fig}\PYG{p}{,} \PYG{n}{ax} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplots}\PYG{p}{()}
+    \PYG{n}{line}\PYG{p}{,} \PYG{o}{=} \PYG{n}{ax}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{U}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{p}{:],} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}blue\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlim}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{L}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylim}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mf}{1.1}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}xlabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}x\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}u(x, t)\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Burgers}\PYG{l+s+se}{\PYGZbs{}\PYGZsq{}}\PYG{l+s+s1}{ Equation Evolution\PYGZsq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Define update inside so it has access to ax and line}
+    \PYG{k}{def} \PYG{n+nf}{update}\PYG{p}{(}\PYG{n}{frame}\PYG{p}{):}
+        \PYG{n}{line}\PYG{o}{.}\PYG{n}{set\PYGZus{}ydata}\PYG{p}{(}\PYG{n}{U}\PYG{p}{[}\PYG{n}{frame}\PYG{p}{,} \PYG{p}{:])}
+        \PYG{n}{ax}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}t = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{frame}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{dt}\PYG{l+s+si}{:}\PYG{l+s+s1}{.3f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+        \PYG{k}{return} \PYG{n}{line}\PYG{p}{,}
+
+    \PYG{n}{ani} \PYG{o}{=} \PYG{n}{animation}\PYG{o}{.}\PYG{n}{FuncAnimation}\PYG{p}{(}
+        \PYG{n}{fig}\PYG{p}{,} \PYG{n}{update}\PYG{p}{,}
+        \PYG{n}{frames}\PYG{o}{=}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{Nt}\PYG{p}{,} \PYG{n+nb}{max}\PYG{p}{(}\PYG{n}{Nt} \PYG{o}{//} \PYG{l+m+mi}{200}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)),}
+        \PYG{n}{interval}\PYG{o}{=}\PYG{l+m+mi}{30}\PYG{p}{,} \PYG{n}{blit}\PYG{o}{=}\PYG{k+kc}{True}
+    \PYG{p}{)}
+
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+
+\PYG{k}{for} \PYG{n}{n} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{Nt}\PYG{p}{):}
+    \PYG{n}{u\PYGZus{}old} \PYG{o}{=} \PYG{n}{u}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{()}
+    \PYG{n}{u} \PYG{o}{=} \PYG{n}{broyden}\PYG{p}{(}\PYG{n}{u}\PYG{o}{.}\PYG{n}{copy}\PYG{p}{(),} \PYG{n}{dx}\PYG{p}{,} \PYG{n}{dt}\PYG{p}{,} \PYG{n}{nu}\PYG{p}{,} \PYG{n}{TOL}\PYG{p}{,} \PYG{n}{N}\PYG{p}{,} \PYG{n}{u\PYGZus{}old}\PYG{p}{)}
+    \PYG{n}{U}\PYG{p}{[}\PYG{n}{n}\PYG{p}{,} \PYG{p}{:]} \PYG{o}{=} \PYG{n}{u}
+
+\PYG{n}{Fanimation}\PYG{p}{()}
+\end{Verbatim}

@@ -64,7 +64,9 @@ def broyden(u,u_old, dx, dt, nu, TOL, N,t1):
             break
     t1= t1+ time.time() -t0
     return u, errors, residuals,t1, k
-
+def steffensen(u,u_old,dx,dt,nu,TOL,N,t1):
+    
+    pass
 def empirical_order(errors):
     orders = []
     for k in range(2, len(errors)):
